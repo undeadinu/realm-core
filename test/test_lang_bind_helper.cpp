@@ -6581,12 +6581,6 @@ TEST(LangBindHelper_SyncCannotBeChanged_2)
 #if !defined(REALM_ANDROID) && !defined(REALM_IOS)
 // fork should not be used on android or ios.
 
-/*
-
-This unit test has been disabled as it occasionally gets itself into a hang
-(which has plauged the testing process for a long time). It is unknown to me
-(Kristian) whether this is due to a bug in Core or a bug in this test.
-
 TEST(LangBindHelper_ImplicitTransactions_InterProcess)
 {
     const int write_process_count = 7;
@@ -6670,8 +6664,6 @@ TEST(LangBindHelper_ImplicitTransactions_InterProcess)
     }
 
 }
-
-*/
 
 #endif
 #endif
