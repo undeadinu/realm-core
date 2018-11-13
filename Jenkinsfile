@@ -58,6 +58,24 @@ jobWrapper {
         }
 
         if (isPullRequest) {
+            stage('FormatCheck') {
+                steps {
+                    sh '''
+                    echo "Checking code foramtting"
+                    MODIFICATIONS=$(git clang-format --diff ${targetBranch} | grep -v clang-format)
+
+                    if [ "${MODIFICATIONS}" == "no modified files to format" ]; then
+                        exit 0
+                    fi
+
+                    if [ "${MODIFICATIONS}" ]; then
+                    echo "Commit violates formatting rules"
+                    echo "${MODIFICATIONS}"
+                    exit 1
+                    fi
+                    '''
+                }
+            }
             stage('Checking') {
                 parallelExecutors = [
                     checkLinuxDebug         : doCheckInDocker('Debug'),

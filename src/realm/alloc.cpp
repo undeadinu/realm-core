@@ -83,26 +83,21 @@ public:
             throw util::bad_alloc();
         }
 #if REALM_ENABLE_ALLOC_SET_ZERO
-        std::fill(new_addr + old_size, new_addr + new_size, 0);
+        std::fill(new_addr+old_size, new_addr+new_size, 0);
 #else
         static_cast<void>(old_size);
 #endif
         return MemRef(new_addr, reinterpret_cast<size_t>(new_addr), *this);
     }
 
-    void do_free(ref_type, char* addr) noexcept override
-    {
-        ::free(addr);
-    }
+    void do_free(ref_type, char* addr) noexcept override { ::free(addr); }
 
     char* do_translate(ref_type ref) const noexcept override
     {
         return reinterpret_cast<char*>(ref);
     }
 
-    void verify() const override
-    {
-    }
+    void verify() const override { }
 };
 
 // This variable is declared such that get_default() can return it. It could be a static local variable, but
