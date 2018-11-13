@@ -14,6 +14,8 @@ branch = tokens[tokens.size()-1]
 jobWrapper {
     timeout(time: 5, unit: 'HOURS') {
         stage('gather-info') {
+            isPullRequest = !!env.CHANGE_TARGET
+            targetBranch = isPullRequest ? env.CHANGE_TARGET : "none"
             node('docker') {
                 getSourceArchive()
                 stash includes: '**', name: 'core-source', useDefaultExcludes: false
@@ -37,10 +39,13 @@ jobWrapper {
                         setBuildName("Tag ${gitTag}")
                     }
                 }
+                targetSHA1 = 'NONE'
+                if (isPullRequest) {
+                    sh "git checkout ${targetBranch}"
+                    targetSHA1 = sh(returnStdout: true, script: "git rev-parse ${targetBranch}").trim()
+                }
             }
 
-            isPullRequest = !!env.CHANGE_TARGET
-            targetBranch = isPullRequest ? env.CHANGE_TARGET : "none"
             println "Building branch: ${env.BRANCH_NAME}"
             println "Target branch: ${targetBranch}"
 
@@ -59,21 +64,20 @@ jobWrapper {
 
         if (isPullRequest) {
             stage('FormatCheck') {
-                steps {
-                    sh '''
-                    echo "Checking code foramtting"
-                    MODIFICATIONS=$(git clang-format --diff ${targetBranch} | grep -v clang-format)
+                node('docker') {
+                    getArchive()
+                    docker.build('realm-core-clang:snapshot', '-f clang.Dockerfile .').inside() {
+                        echo "Checking code foramtting"
+                        modifications = sh(returnStdout: true, script: "git clang-format --diff ${targetSHA1}").trim()
 
-                    if [ "${MODIFICATIONS}" == "no modified files to format" ]; then
-                        exit 0
-                    fi
-
-                    if [ "${MODIFICATIONS}" ]; then
-                    echo "Commit violates formatting rules"
-                    echo "${MODIFICATIONS}"
-                    exit 1
-                    fi
-                    '''
+                        if (!modifications.equals('no modified files to format')) {
+                            if (!modifications.equals('clang-format did not modify any files')) {
+                                echo "Commit violates formatting rules:"
+                                echo "${modifications}"
+                                sh 'exit 1'
+                            }
+                        }
+                    }
                 }
             }
             stage('Checking') {
