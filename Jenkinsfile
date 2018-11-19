@@ -41,8 +41,7 @@ jobWrapper {
                 }
                 targetSHA1 = 'NONE'
                 if (isPullRequest) {
-                    sh "git checkout ${targetBranch}"
-                    targetSHA1 = sh(returnStdout: true, script: "git rev-parse ${targetBranch}").trim()
+                    targetSHA1 = sh(returnStdout: true, script: "git merge-base origin/${targetBranch} HEAD").trim()
                 }
             }
 
@@ -72,8 +71,9 @@ jobWrapper {
 
                         if (!modifications.equals('no modified files to format')) {
                             if (!modifications.equals('clang-format did not modify any files')) {
-                                echo "Commit violates formatting rules:"
-                                echo "${modifications}"
+                                echo "Commit violates formatting rules"
+                                sh "git clang-format --diff ${targetSHA1} | tools/diff2html.sh > format_error.html"
+                                publishHTML(target: [allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: '.', reportFiles: 'format_error.html', reportName: 'Code formatting errors'])
                                 sh 'exit 1'
                             }
                         }
