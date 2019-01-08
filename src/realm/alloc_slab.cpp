@@ -797,6 +797,7 @@ ref_type SlabAlloc::get_top_ref(const char* buffer, size_t len)
     }
 }
 
+
 namespace {
 
 // prevent destruction at exit (which can lead to races if other threads are still running)

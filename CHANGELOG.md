@@ -1,11 +1,14 @@
 # NEXT RELEASE
 
 ### Enhancements
-* None.
+* Instead of asserting, an `InvalidDatabase` exception is thrown when a realm file is opened 
+  with an invalid top ref.
 
 ### Fixed
 * <How to hit and notice issue? what was the impact?> ([#????](https://github.com/realm/realm-core/issues/????), since v?.?.?)
-* None.
+* A bug was fixed in `realm::util::DirScanner` that could cause it to sometimes
+  skip directory entries due to faulty error handling around `readdir()`. Since
+  5.12.5. Issue [realm/realm-sync#2699](https://github.com/realm/realm-sync/issues/2699).
  
 ### Breaking changes
 * None.
@@ -13,7 +16,9 @@
 -----------
 
 ### Internals
-* None.
+* Improved performance on `find_first` for small string arrays (ArrayString). This will improve the table name lookup
+  performance.
+* Upgrade pegtl to 2.6.1. Several issues fixed.
 
 ----------------------------------------------
 
