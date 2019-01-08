@@ -1,3 +1,5 @@
+include(CMakeFindDependencyMacro)
+
 if(REALM_ENABLE_ENCRYPTION AND NOT APPLE)
     if(ANDROID)
         string(TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE)
@@ -19,9 +21,9 @@ if(REALM_ENABLE_ENCRYPTION AND NOT APPLE)
 
         message(STATUS "Importing OpenSSL...")
         set(OpenSSL_DIR "${CMAKE_BINARY_DIR}/openssl/lib/cmake/OpenSSL")
-        find_package(OpenSSL REQUIRED CONFIG)
+        find_dependency(OpenSSL REQUIRED CONFIG)
     else()
-        find_package(OpenSSL)
+        find_dependency(OpenSSL)
     endif()
     target_link_libraries(realm ${OPENSSL_LIBRARIES})
 endif()
